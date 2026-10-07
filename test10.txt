@@ -1,0 +1,3 @@
+simple8.prg
+10
+O

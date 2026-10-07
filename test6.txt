@@ -1,0 +1,4 @@
+terrain_6.txt
+simple6.prg
+2
+S

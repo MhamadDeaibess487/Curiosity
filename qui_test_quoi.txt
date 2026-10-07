@@ -1,0 +1,11 @@
+le fichier 1 test si le robot fait l'attendu et sort du terrain.(renvoi OK)
+le fichier 2 test si le robot fait l'attendu et tombe dans l'eau(renvoi OK)
+le fichier 3 test quand les mauvaise coordonnées sont fournis.(robustesse)
+le fichier 4 tests comme le fichier 3 mais avec les bonnes coordonnes.(renvoi OK)
+le fichier 5 tests quand le robot ne secrase pas sur un rocher.
+le fichier 6 tests quand le nombre de pas d'exécution est dépassé.
+le fichier 7 est le tests fourni dans le tp.
+le fichier 8 tests quand ce qui est prévu par le fichier et la localisation finale du robot ne correspondent pas.
+le fichier 9 est un test de robustesse on met F sans les coordonnes
+le fichier 10 est un test de robustesse sans terrain
+le fichier 11 est un test de robustesse sans programe

@@ -1,0 +1,6 @@
+Je n'ai pas de tests qui permet de vérifier le cas où l'on a la lettre N .
+En effet , il est impossible d'être à la fois sur une case libre et que le programme n'est pas terminé.
+Car soit on s'arrete avant que le programme soit terminé , ce qui signifie qu'on sortie de la carte , qu'on a heurté un rocher, 
+ou tomber dans l'eau, ou encore qu'on a dépassé le nombre de pas d'éxécution maximum, soit le on ne s'arrete pas et donc le programme continue.
+Il est d'ailleurs bien précisé dans curiosité dans le switch final dans le cas "OK_ROBOT" (qui devrait correspondre au conditions pour avoir N)
+que ce cas n'est pas sensé arriver. 

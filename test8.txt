@@ -1,0 +1,4 @@
+terrain_8.txt
+simple8.prg
+10
+O
