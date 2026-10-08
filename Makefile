@@ -1,118 +1,54 @@
-CC=clang -Wall
+CC = cc
+CFLAGS ?= -Wall
+CPPFLAGS += -Iinclude
+PYTHON ?= python3
 
-PROGRAMMES=test_terrain test_robot robot_terrain curiosity curiosity-test \
-           test_generation_terrains curiosity-perf curiosity-obs curiosity-obs2
+PROGRAMMES := test_terrain test_robot robot_terrain curiosity curiosity-test \
+              test_generation_terrains curiosity-perf curiosity-obs curiosity-obs2
+VARIANTES := $(addprefix curiosity-test,0 1 2 3 4 5 6 7 8 9)
+BASE := build/src/programme.o build/src/robot.o build/src/terrain.o build/src/type_pile.o
+ENV := build/src/environnement.o build/src/observateur.o
+CORE := $(BASE) $(ENV) build/src/interprete.o
+GEN := build/src/generation_terrains.o
 
-all: $(PROGRAMMES)
+.PHONY: all variants clean test smoke $(PROGRAMMES) $(VARIANTES)
+.SECONDARY:
+all: $(addprefix build/bin/,$(PROGRAMMES))
+variants: $(addprefix build/bin/,$(VARIANTES))
+$(PROGRAMMES) $(VARIANTES): %: build/bin/%
 
-######################################################################
-#                       Règles de compilation                        #
-######################################################################
+build/%.o: %.c
+	@mkdir -p $(@D)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -c $< -o $@
 
-%.o: %.c
-	$(CC) -c $<
+build/bin/test_terrain: build/tests/test_terrain.o build/src/terrain.o
+build/bin/test_robot: build/tests/test_robot.o build/src/robot.o
+build/bin/robot_terrain: build/apps/robot_terrain.o build/src/terrain.o build/src/robot.o
+build/bin/curiosity: build/apps/curiosity.o $(CORE)
+build/bin/curiosity-test: build/tests/curiosity-test.o $(CORE)
+build/bin/test_generation_terrains: build/tests/test_generation_terrains.o $(GEN) build/src/terrain.o
+build/bin/curiosity-perf: build/apps/curiosity-perf.o $(CORE) $(GEN)
+build/bin/curiosity-obs: build/apps/curiosity-obs.o $(CORE) $(GEN)
+build/bin/curiosity-obs2: build/apps/curiosity-obs2.o $(BASE) build/src/interprete.o \
+                        build/src/environnement_alt.o build/src/observateur2.o $(GEN)
 
-test_terrain.o: test_terrain.c terrain.h
+$(addprefix build/bin/,$(PROGRAMMES)):
+	@mkdir -p $(@D)
+	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-test_generation_terrains.o: test_generation_terrains.c generation_terrains.h terrain.h
+# Les variantes partagent l'environnement principal et son observateur.
+build/bin/curiosity-test%: build/tests/curiosity-test.o build/src/variants/interprete%.o $(BASE) $(ENV)
+	@mkdir -p $(@D)
+	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-curiosity-perf.o: curiosity-perf.c environnement.h programme.h type_pile.h \
-	interprete.h robot.h terrain.h
+test: all
+	$(PYTHON) tests/run_tests.py
 
-test_robot.o: test_robot.c robot.h
-
-robot_terrain.o: robot_terrain.c terrain.h robot.h
-
-generation_terrains.o: generation_terrains.c generation_terrains.h
-
-robot.o: robot.c robot.h
-
-terrain.o: terrain.c terrain.h
-
-observateur.o: observateur.c observateur.h
-
-observateur2.o: observateur2.c observateur.h
-
-environnement.o: environnement.c environnement.h robot.h terrain.h observateur.h
-
-environnement_alt.o: environnement_alt.c environnement.h robot.h terrain.h observateur.h
-
-programme.o: programme.c programme.h type_pile.h
-
-interprete.o: interprete.c interprete.h environnement.h \
-	programme.h type_pile.h robot.h terrain.h
-
-interprete%.o: interprete%.c interprete.h environnement.h \
-	programme.h type_pile.h robot.h terrain.h
-
-type_pile.o: type_pile.c type_pile.h
-
-curiosity-obs.o: curiosity-obs.c environnement.h programme.h observateur.h \
-	interprete.h robot.h terrain.h type_pile.h
-
-curiosity-obs2.o: curiosity-obs2.c environnement.h programme.h observateur.h \
-	interprete.h robot.h terrain.h type_pile.h
-
-curiosity.o: curiosity.c environnement.h programme.h \
-	interprete.h robot.h terrain.h type_pile.h generation_terrains.h 
-
-curiosity-test.o: curiosity-test.c environnement.h programme.h \
-	interprete.h robot.h terrain.h type_pile.h
-
-######################################################################
-#                       Règles d'édition de liens                    #
-######################################################################
-
-test_terrain: test_terrain.o terrain.o
-	$(CC) $^ -o $@
-
-observateur: observateur.o 
-	$(CC) $^ -o $@
-
-observateur2: observateur2.o 
-	$(CC) $^ -o $@
-
-environnement: environnement.o observateur.o
-	$(CC) $^ -o $@
-
-environnement_alt: environnement_alt.o observateur2.o
-	$(CC) $^ -o $@
-
-test_robot: test_robot.o robot.o
-	$(CC) $^ -o $@
-
-robot_terrain: robot_terrain.o terrain.o robot.o
-	$(CC) $^ -o $@
-
-curiosity-test: curiosity-test.o environnement.o programme.o interprete.o \
-	robot.o terrain.o type_pile.o observateur.o
-	$(CC) $^ -o $@
-
-curiosity: curiosity.o environnement.o programme.o interprete.o observateur.o \
-	robot.o terrain.o type_pile.o
-	$(CC) $^ -o $@
-
-curiosity-perf: curiosity-perf.o environnement.o programme.o interprete.o type_pile.o \
-	robot.o terrain.o generation_terrains.o observateur.o
-	$(CC) $^ -o $@
-
-curiosity-obs: curiosity-obs.o environnement.o programme.o interprete.o \
-	robot.o terrain.o type_pile.o generation_terrains.o observateur.o
-	$(CC) $^ -o $@
-
-curiosity-obs2: curiosity-obs2.o environnement_alt.o programme.o interprete.o \
-	robot.o terrain.o type_pile.o generation_terrains.o observateur2.o
-	$(CC) $^ -o $@
-
-generation_terrains: generation_terrains.o
-	$(CC) $^ -o $@
-
-curiosity-test%: curiosity-test.o environnement.o programme.o interprete%.o \
-	robot.o terrain.o type_pile.o
-	$(CC) $^ -o $@
-
-test_generation_terrains: test_generation_terrains.o generation_terrains.o terrain.o 
-	$(CC) $^ -o $@
+smoke: all
+	$(PYTHON) tests/run_tests.py --smoke
 
 clean:
-	rm -f $(PROGRAMMES) *.o
+	rm -rf build
+
+# Dépendances des headers, générées automatiquement par le compilateur.
+-include $(wildcard build/src/*.d build/src/variants/*.d build/apps/*.d build/tests/*.d)

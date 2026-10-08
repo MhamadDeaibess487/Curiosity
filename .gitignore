@@ -1,1 +1,29 @@
+# Produits de compilation et résultats locaux
+/build/
 *.o
+*.d
+*.a
+*.so
+*.gcda
+*.gcno
+*.gcov
+
+# Anciens exécutables conservés localement après retrait du suivi Git
+/curiosity
+/curiosity-perf
+/curiosity-test
+/curiosity-test[0-9]
+/curiosity-obs
+/curiosity-obs2
+/robot_terrain
+/test_robot
+/test_terrain
+/test_generation_terrains
+/fichier_res.txt
+/fichier_res_aleatoire.txt
+
+# Fichiers temporaires des éditeurs
+*~
+*.swp
+*.swo
+.DS_Store
